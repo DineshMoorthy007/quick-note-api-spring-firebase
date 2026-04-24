@@ -17,5 +17,5 @@ public class NoteRequestDTO {
     private String createdAt;
 
     @JsonProperty("isPinned")
-    private boolean isPinned;
+    private Boolean isPinned;
 }

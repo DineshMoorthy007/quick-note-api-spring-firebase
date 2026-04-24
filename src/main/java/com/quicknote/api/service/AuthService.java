@@ -34,7 +34,7 @@ public class AuthService {
         DocumentReference docRef = firestore.collection(USERS_COLLECTION).document(userId);
         waitFor(docRef.set(user));
 
-        return new AuthResponseDTO(generateMockToken(), userId, request.getUsername());
+        return new AuthResponseDTO(generateMockToken(userId), userId, request.getUsername());
     }
 
     public AuthResponseDTO login(AuthRequestDTO request) {
@@ -57,11 +57,11 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid username or password.");
         }
 
-        return new AuthResponseDTO(generateMockToken(), document.getId(), user.getUsername());
+        return new AuthResponseDTO(generateMockToken(document.getId()), document.getId(), user.getUsername());
     }
 
-    private String generateMockToken() {
-        return "mock-token-" + UUID.randomUUID();
+    private String generateMockToken(String userId) {
+        return "mock-token-" + userId + "-" + UUID.randomUUID();
     }
 
     private <T> T waitFor(ApiFuture<T> future) {

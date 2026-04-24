@@ -17,5 +17,5 @@ public class Note {
     private String createdAt;
 
     @JsonProperty("isPinned")
-    private boolean isPinned;
+    private Boolean isPinned;
 }

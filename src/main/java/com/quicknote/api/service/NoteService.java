@@ -32,6 +32,7 @@ public class NoteService {
     public Note createNote(NoteRequestDTO request) {
         String noteId = UUID.randomUUID().toString();
         String createdAt = Instant.now().toString();
+        Boolean isPinned = request.getIsPinned() != null ? request.getIsPinned() : Boolean.FALSE;
 
         Note note = new Note(
             noteId,
@@ -39,7 +40,7 @@ public class NoteService {
             request.getContent(),
             request.getUserId(),
             createdAt,
-            request.isPinned()
+            isPinned
         );
 
         DocumentReference docRef = firestore.collection(NOTES_COLLECTION).document(noteId);
@@ -83,8 +84,12 @@ public class NoteService {
         existing.setId(noteId);
         existing.setTitle(request.getTitle());
         existing.setContent(request.getContent());
-        existing.setUserId(request.getUserId());
-        existing.setPinned(request.isPinned());
+        if (request.getUserId() != null && !request.getUserId().isBlank()) {
+            existing.setUserId(request.getUserId());
+        }
+        if (request.getIsPinned() != null) {
+            existing.setIsPinned(request.getIsPinned());
+        }
         if (request.getCreatedAt() != null && !request.getCreatedAt().isBlank()) {
             existing.setCreatedAt(request.getCreatedAt());
         }
@@ -107,7 +112,7 @@ public class NoteService {
         }
 
         note.setId(noteId);
-        note.setPinned(!note.isPinned());
+        note.setIsPinned(note.getIsPinned() == null ? Boolean.TRUE : !note.getIsPinned());
 
         waitFor(docRef.set(note));
         return note;

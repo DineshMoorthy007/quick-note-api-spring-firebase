@@ -140,7 +140,3 @@ gcloud run deploy api-spring-firebase --source . --region asia-south1 --allow-un
 ## Repository Scope
 
 This repository is intentionally narrow in scope. It focuses on the backend responsibilities of authentication, note persistence, and API governance. Presentation logic, routing, and user interaction are handled by the companion frontend application.
-
-## License
-
-No license has been declared in this repository.

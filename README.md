@@ -91,9 +91,9 @@ On Windows, the equivalent command is:
 mvnw.cmd spring-boot:run
 ```
 
-## Containerization & Deployment Strategy
+## Containerization & Cloud Deployment
 
-This stack is optimized for deployment as a serverless container on Google Cloud Run. The runtime model aligns well with Firestore-backed stateless APIs because request handling does not depend on in-memory session state or local disk persistence.
+This stack is optimized for deployment as a serverless container on Google Cloud Run. The runtime model aligns well with Firestore-backed stateless APIs because request handling does not depend on in-memory session state or local disk persistence. The application also uses a multi-stage Docker build to keep the final runtime image lightweight, reproducible, and suitable for cloud-native deployment. The first stage performs the Maven build, while the second stage packages only the compiled Spring Boot artifact on a compact Eclipse Temurin JRE base image.
 
 A containerized Cloud Run deployment supports:
 
@@ -103,6 +103,31 @@ A containerized Cloud Run deployment supports:
 - Straightforward integration with Google Cloud identity and secret management
 
 For enterprise environments, this deployment model provides a pragmatic balance between operational simplicity and cloud-native scalability.
+
+```dockerfile
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+
+COPY --from=build /workspace/target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+For production deployment to Google Cloud Run, use the following command:
+
+```bash
+gcloud run deploy api-spring-firebase --source . --region asia-south1 --allow-unauthenticated --port 8080
+```
 
 ## Implementation Notes
 
